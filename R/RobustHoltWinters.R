@@ -1,3 +1,1 @@
-RobustHoltWinters <- function () {
-
-}
+Rcpp::sourceCpp('src/RobustHoltWinters.cpp')
