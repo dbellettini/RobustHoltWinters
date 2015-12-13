@@ -25,8 +25,7 @@
 #include <iostream>
 
 using namespace Rcpp;
-
-typedef NumericVector (*prefilter) (NumericVector);
+using namespace std;
 
 // [[Rcpp::export]]
 List RobustHoltWintersCpp(
@@ -43,7 +42,6 @@ List RobustHoltWintersCpp(
     double trendInitial,
     NumericVector seasonInitial
 ) {
-
     int xl = x.length();
 
     double res = 0, xhat = 0, stmp = 0;
@@ -119,7 +117,7 @@ List RobustHoltWintersCpp(
     }
 
     if (doSeasonal) {
-        output["season"] = season;
+        output["seasonal"] = season;
     }
 
     return output;
