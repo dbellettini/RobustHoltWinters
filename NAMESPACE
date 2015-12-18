@@ -1,1 +1,3 @@
+useDynLib(RobustHoltWinters)
 exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)

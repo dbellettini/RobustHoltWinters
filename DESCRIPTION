@@ -4,8 +4,9 @@ Title: What the Package Does (Title Case)
 Version: 0.1
 Date: 2015-12-08
 Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Maintainer: Davide Bellettini <davide@bellettini.eu>
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: GPL version 3
 LazyData: TRUE
+Imports: Rcpp (>= 0.11.0)
 LinkingTo: Rcpp
