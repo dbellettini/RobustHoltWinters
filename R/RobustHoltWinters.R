@@ -14,6 +14,8 @@
 #  A copy of the GNU General Public License is available at
 #  http://www.r-project.org/Licenses/
 
+# Originally contributed by David Meyer
+
 RobustHoltWinters <-
 function (x,
 
@@ -34,23 +36,22 @@ function (x,
           optim.control = list()
           )
 {
-    prefilter <- identity
-
     x <- as.ts(x)
+    prefilter <- identity
     prefiltered <- prefilter(x)
     seasonal <- match.arg(seasonal)
     f <- frequency(x)
 
     if(!is.null(alpha) && (alpha == 0))
-        stop ("cannot fit models without level ('alpha' must not be 0 or FALSE).")
+        stop ("cannot fit models without level ('alpha' must not be 0 or FALSE)")
     if(!all(is.null(c(alpha, beta, gamma))) &&
         any(c(alpha, beta, gamma) < 0 || c(alpha, beta, gamma) > 1))
-        stop ("'alpha', 'beta' and 'gamma' must be within the unit interval.")
+        stop ("'alpha', 'beta' and 'gamma' must be within the unit interval")
     if((is.null(gamma) || gamma > 0)) {
         if (seasonal == "multiplicative" && any(x == 0))
-            stop ("data must be non-zero for multiplicative Holt-Winters.")
+            stop ("data must be non-zero for multiplicative Holt-Winters")
         if (start.periods < 2)
-            stop ("need at least 2 periods to compute seasonal start values.")
+            stop ("need at least 2 periods to compute seasonal start values")
     }
 
     ## initialization
@@ -83,8 +84,10 @@ function (x,
     }
 
     ## Call to filtering loop
-    len <- length(x) - start.time + 1
+    lenx <- as.integer(length(x))
+    if (is.na(lenx)) stop("invalid length(x)")
 
+    len <- lenx - start.time + 1
     hw <- function (alpha, beta, gamma) {
         return (RobustHoltWintersCpp(
             x,
