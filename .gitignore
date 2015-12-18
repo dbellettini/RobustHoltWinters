@@ -1,3 +1,6 @@
-.Rproj.user
-.Rhistory
+*.o
+*.so
 .RData
+.Rhistory
+.Rproj.user
+RcppExports.*
