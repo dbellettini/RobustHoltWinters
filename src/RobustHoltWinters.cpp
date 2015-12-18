@@ -30,6 +30,7 @@ using namespace std;
 // [[Rcpp::export]]
 List RobustHoltWintersCpp(
     NumericVector x,
+    NumericVector filtered,
     const double alpha,
     const double beta,
     const double gamma,

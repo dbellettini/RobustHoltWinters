@@ -34,7 +34,10 @@ function (x,
           optim.control = list()
           )
 {
+    prefilter <- identity
+
     x <- as.ts(x)
+    prefiltered <- prefilter(x)
     seasonal <- match.arg(seasonal)
     f <- frequency(x)
 
@@ -85,6 +88,7 @@ function (x,
     hw <- function (alpha, beta, gamma) {
         return (RobustHoltWintersCpp(
             x,
+            prefiltered,
             as.double(alpha),
             as.double(beta),
             as.double(gamma),
