@@ -61,7 +61,7 @@ function (x,
 
         for (i in 2:(lenx-1)) {
             prev <- y[i - 1]
-            y[i] <- saturation((x[i] - prev) / sigma) + prev
+            y[i] <- sigma * saturation((x[i] - prev) / sigma) + prev
         }
 
         return(y)
