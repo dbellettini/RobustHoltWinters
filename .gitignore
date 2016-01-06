@@ -1,5 +1,6 @@
 *.o
 *.so
+*.swap
 .RData
 .Rhistory
 .Rproj.user
