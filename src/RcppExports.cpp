@@ -5,6 +5,22 @@
 
 using namespace Rcpp;
 
+// psi
+double psi(double y, double k);
+RcppExport SEXP RobustHoltWinters_psi(SEXP ySEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< double >::type y(ySEXP );
+        Rcpp::traits::input_parameter< double >::type k(kSEXP );
+        double __result = psi(y, k);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // RobustHoltWintersCpp
 List RobustHoltWintersCpp(NumericVector x, NumericVector filtered, const double alpha, const double beta, const double gamma, int startTime, int seasonalType, int frequency, bool doTrend, bool doSeasonal, double levelInitial, double trendInitial, NumericVector seasonInitial);
 RcppExport SEXP RobustHoltWinters_RobustHoltWintersCpp(SEXP xSEXP, SEXP filteredSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP startTimeSEXP, SEXP seasonalTypeSEXP, SEXP frequencySEXP, SEXP doTrendSEXP, SEXP doSeasonalSEXP, SEXP levelInitialSEXP, SEXP trendInitialSEXP, SEXP seasonInitialSEXP) {
