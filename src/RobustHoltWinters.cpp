@@ -41,6 +41,16 @@ double psi (double y, double k)
     return y;
 }
 
+double RobustLevel(
+    const double alpha,
+    const double yt,
+    const double predicted,
+    const double sigma,
+    const double k)
+{
+  return alpha * psi((yt - predicted) / sigma, k) * sigma + predicted;
+}
+
 // [[Rcpp::export]]
 List RobustHoltWintersCpp(
     NumericVector x,
