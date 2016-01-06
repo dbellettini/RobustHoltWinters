@@ -86,10 +86,10 @@ List RobustHoltWintersCpp(
 
         /* estimate of level *in* period i */
         if (seasonalType == 1)
-            level[i0] = alpha       * (x[i] - stmp)
+            level[i0] = alpha       * (filtered[i] - stmp)
                 + (1 - alpha) * (level[i0 - 1] + trend[i0 - 1]);
         else
-            level[i0] = alpha       * (x[i] / stmp)
+            level[i0] = alpha       * (filtered[i] / stmp)
                 + (1 - alpha) * (level[i0 - 1] + trend[i0 - 1]);
 
         /* estimate of trend *in* period i */
@@ -100,10 +100,10 @@ List RobustHoltWintersCpp(
         /* estimate of seasonal component *in* period i */
         if (doSeasonal) {
             if (seasonalType == 1)
-                season[s0] = gamma * (x[i] - level[i0])
+                season[s0] = gamma * (filtered[i] - level[i0])
                     + (1 - gamma) * stmp;
             else
-                season[s0] = gamma * (x[i] / level[i0])
+                season[s0] = gamma * (filtered[i] / level[i0])
                     + (1 - gamma) * stmp;
         }
     }
