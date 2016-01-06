@@ -28,6 +28,20 @@ using namespace Rcpp;
 using namespace std;
 
 // [[Rcpp::export]]
+double psi (double y, double k)
+{
+    if (y > k) {
+        return k;
+    }
+
+    if (y < -k) {
+        return -k;
+    }
+
+    return y;
+}
+
+// [[Rcpp::export]]
 List RobustHoltWintersCpp(
     NumericVector x,
     NumericVector filtered,
