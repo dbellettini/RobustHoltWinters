@@ -33,12 +33,40 @@ function (x,
 
           # starting values for optim
           optim.start = c(alpha = 0.3, beta = 0.1, gamma = 0.1),
-          optim.control = list()
+          optim.control = list(),
+          k = 2
           )
 {
     x <- as.ts(x)
-    prefilter <- identity
-    prefiltered <- prefilter(x)
+
+    saturate <- function (k) {
+        inner <- function(x) {
+            if (abs(x) > k) {
+                return (sign(x) * k)
+            }
+
+            return (x)
+        }
+
+        return (inner)
+    }
+
+    prefilter <- function(x) {
+        saturation <- saturate(k)
+        sigma <- mad(x)
+
+        lenx <- as.integer(length(x))
+
+        y <- x
+
+        for (i in 2:(lenx-1)) {
+            prev <- y[i - 1]
+            y[i] <- saturation((x[i] - prev) / sigma) + prev
+        }
+
+        return(y)
+    }
+
     seasonal <- match.arg(seasonal)
     f <- frequency(x)
 
@@ -53,6 +81,8 @@ function (x,
         if (start.periods < 2)
             stop ("need at least 2 periods to compute seasonal start values")
     }
+
+    prefiltered <- prefilter(x)
 
     ## initialization
     if(!is.null(gamma) && is.logical(gamma) && !gamma) {
