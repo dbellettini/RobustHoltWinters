@@ -41,14 +41,9 @@ double psi (double y, double k)
     return y;
 }
 
-double RobustLevel(
-    const double alpha,
-    const double yt,
-    const double predicted,
-    const double sigma,
-    const double k)
+bool shouldSaturate(double res, double sigma, double k)
 {
-  return alpha * psi((yt - predicted) / sigma, k) * sigma + predicted;
+    return (res / sigma) > k || (res / sigma) < -k;
 }
 
 // [[Rcpp::export]]
@@ -107,6 +102,12 @@ List RobustHoltWintersCpp(
 
         /* Sum of Squared Errors */
         res   = x[i] - xhat;
+
+        if (shouldSaturate(res, sigma, k)) {
+            res = sigma * psi(res / sigma, k);
+            x[i] + xhat + res;
+        }
+
         SSE += res * res;
 
         /* estimate of level *in* period i */
