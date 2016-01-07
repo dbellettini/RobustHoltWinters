@@ -38,35 +38,6 @@ function (x,
           )
 {
     x <- as.ts(x)
-
-    saturate <- function (k) {
-        inner <- function(x) {
-            if (abs(x) > k) {
-                return (sign(x) * k)
-            }
-
-            return (x)
-        }
-
-        return (inner)
-    }
-
-    prefilter <- function(x) {
-        saturation <- saturate(k)
-        sigma <- mad(x)
-
-        lenx <- as.integer(length(x))
-
-        y <- x
-
-        for (i in 2:(lenx-1)) {
-            prev <- y[i - 1]
-            y[i] <- sigma * saturation((x[i] - prev) / sigma) + prev
-        }
-
-        return(y)
-    }
-
     seasonal <- match.arg(seasonal)
     f <- frequency(x)
 
@@ -81,8 +52,6 @@ function (x,
         if (start.periods < 2)
             stop ("need at least 2 periods to compute seasonal start values")
     }
-
-    prefiltered <- prefilter(x)
 
     ## initialization
     if(!is.null(gamma) && is.logical(gamma) && !gamma) {
@@ -121,7 +90,6 @@ function (x,
     hw <- function (alpha, beta, gamma) {
         return (RobustHoltWintersCpp(
             x,
-            prefiltered,
             as.double(alpha),
             as.double(beta),
             as.double(gamma),
@@ -132,7 +100,9 @@ function (x,
             !is.logical(gamma) || gamma,
             l.start,
             b.start,
-            s.start
+            s.start,
+            mad(x),
+            k
         ))
     }
 
