@@ -101,7 +101,7 @@ function (x,
             l.start,
             b.start,
             s.start,
-            mad(x),
+            mad(x[1:start.time - 1]),
             k
         ))
     }

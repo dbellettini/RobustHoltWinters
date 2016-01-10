@@ -85,6 +85,7 @@ List RobustHoltWintersCpp(
 ) {
     int xl = x.length();
     int len = xl - startTime + 1;
+    double delta = 0.2;
 
     double res = 0, xhat = 0, stmp = 0;
     int i, i0, s0;
@@ -154,6 +155,8 @@ List RobustHoltWintersCpp(
                 season[s0] = gamma * (x[i] / level[i0])
                     + (1 - gamma) * stmp;
         }
+
+        sigma = updatesigma(delta, res, sigma);
     }
 
     List output;
