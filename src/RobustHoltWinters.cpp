@@ -23,6 +23,7 @@
 #include <Rcpp.h>
 #include <assert.h>
 #include <iostream>
+#include <cmath>
 
 using namespace Rcpp;
 using namespace std;
@@ -44,6 +45,17 @@ double psi (double y, double k)
 bool shouldSaturate(double res, double sigma, double k)
 {
     return (res / sigma) > k || (res / sigma) < -k;
+}
+
+double rho (double x)
+{
+    const double k = 2, ck = 2.52;
+
+    if (x > k || x < -k) {
+        return ck;
+    }
+
+    return ck * (1 - pow(1 - pow(x / k, 2), 3));
 }
 
 // [[Rcpp::export]]
