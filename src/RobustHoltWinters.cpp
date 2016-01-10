@@ -64,15 +64,16 @@ List RobustHoltWintersCpp(
     double k
 ) {
     int xl = x.length();
+    int len = xl - startTime;
 
     double res = 0, xhat = 0, stmp = 0;
     int i, i0, s0;
 
     double SSE = 0.0;
 
-    NumericVector level(xl);
-    NumericVector season(xl);
-    NumericVector trend(xl);
+    NumericVector level(len + 1);
+    NumericVector trend(len + 1);
+    NumericVector season(len + frequency);
 
     /* copy start values to the beginning of the vectors */
     level[0] = levelInitial;
