@@ -64,7 +64,7 @@ List RobustHoltWintersCpp(
     double k
 ) {
     int xl = x.length();
-    int len = xl - startTime;
+    int len = xl - startTime + 1;
 
     double res = 0, xhat = 0, stmp = 0;
     int i, i0, s0;
