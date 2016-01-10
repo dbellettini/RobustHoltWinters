@@ -58,6 +58,14 @@ double rho (double x)
     return ck * (1 - pow(1 - pow(x / k, 2), 3));
 }
 
+double updatesigma (double delta, double rt, double sigma)
+{
+    return sqrt(
+            delta * rho(rt / sigma) * pow(sigma, 2)
+                + (1 - delta) * pow(sigma, 2)
+    );
+}
+
 // [[Rcpp::export]]
 List RobustHoltWintersCpp(
     NumericVector x,
