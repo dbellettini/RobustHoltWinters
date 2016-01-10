@@ -104,7 +104,7 @@ List RobustHoltWintersCpp(
         res   = x[i] - xhat;
 
         if (shouldSaturate(res, sigma, k)) {
-            fprintf(stderr, "res: %f, sigma: %f, k: %f\n", res, sigma, k);
+            /* fprintf(stderr, "res: %f, sigma: %f, k: %f\n", res, sigma, k); */
             res = sigma * psi(res / sigma, k);
             x[i] = xhat + res;
         }
