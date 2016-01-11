@@ -75,8 +75,6 @@ List RobustHoltWintersCpp(
     int startTime,
     int seasonalType,
     int frequency,
-    bool doTrend,
-    bool doSeasonal,
     double levelInitial,
     double trendInitial,
     NumericVector seasonInitial,
@@ -98,14 +96,10 @@ List RobustHoltWintersCpp(
 
     /* copy start values to the beginning of the vectors */
     level[0] = levelInitial;
-    if (doTrend) {
-        trend[0] = trendInitial;
-    }
+    trend[0] = trendInitial;
 
-    if (doSeasonal) {
-        for (i = 0; i < frequency; ++i) {
-            season[i] = seasonInitial[i];
-        }
+    for (i = 0; i < frequency; ++i) {
+        season[i] = seasonInitial[i];
     }
 
     for (i = startTime - 1; i < xl; i++) {
@@ -114,8 +108,8 @@ List RobustHoltWintersCpp(
         s0 = i0 + frequency - 1;
 
         /* forecast *for* period i */
-        xhat = level[i0 - 1] + (doTrend ? trend[i0 - 1] : 0);
-        stmp = doSeasonal ? season[s0 - frequency] : (seasonalType != 1);
+        xhat = level[i0 - 1] + trend[i0 - 1];
+        stmp = season[s0 - frequency];
 
         if (seasonalType == 1)
             xhat += stmp;
@@ -142,19 +136,16 @@ List RobustHoltWintersCpp(
                 + (1 - alpha) * (level[i0 - 1] + trend[i0 - 1]);
 
         /* estimate of trend *in* period i */
-        if (doTrend)
-            trend[i0] = beta        * (level[i0] - level[i0 - 1])
-                + (1 - beta)  * trend[i0 - 1];
+        trend[i0] = beta        * (level[i0] - level[i0 - 1])
+            + (1 - beta)  * trend[i0 - 1];
 
         /* estimate of seasonal component *in* period i */
-        if (doSeasonal) {
-            if (seasonalType == 1)
-                season[s0] = gamma * (x[i] - level[i0])
-                    + (1 - gamma) * stmp;
-            else
-                season[s0] = gamma * (x[i] / level[i0])
-                    + (1 - gamma) * stmp;
-        }
+        if (seasonalType == 1)
+            season[s0] = gamma * (x[i] - level[i0])
+                + (1 - gamma) * stmp;
+        else
+            season[s0] = gamma * (x[i] / level[i0])
+                + (1 - gamma) * stmp;
 
         sigma = updatesigma(delta, res, sigma);
     }
@@ -163,14 +154,8 @@ List RobustHoltWintersCpp(
 
     output["SSE"] = SSE;
     output["level"] = level;
-
-    if (doTrend) {
-        output["trend"] = trend;
-    }
-
-    if (doSeasonal) {
-        output["seasonal"] = season;
-    }
+    output["trend"] = trend;
+    output["seasonal"] = season;
 
     return output;
 }

@@ -17,23 +17,14 @@
 # Originally contributed by David Meyer
 
 RobustHoltWinters <-
-function (x,
-
-          # smoothing parameters
-          seasonal = c("additive", "multiplicative"),
-          start.periods = 2,
-
-          # starting values
-          l.start  = NULL, # level
-          b.start  = NULL, # trend
-          s.start  = NULL, # seasonal components vector of length `period'
-
-          # starting values for optim
-          optim.start = c(alpha = 0.3, beta = 0.1, gamma = 0.1),
-          optim.control = list(),
-          k = 2
-          )
+function (x, seasonal = c("additive", "multiplicative"))
 {
+    # starting values for optim
+    optim.start = c(alpha = 0.3, beta = 0.1, gamma = 0.1)
+    optim.control = list()
+    start.periods = 2
+    k = 2
+
     x <- as.ts(x)
     seasonal <- match.arg(seasonal)
     f <- frequency(x)
@@ -51,9 +42,9 @@ function (x,
     dat <- na.omit(st$trend)
     m   <- lm(dat ~ seq_along(dat))
 
-    if (is.null(l.start)) l.start <- as.vector(coef(m)[1L])
-    if (is.null(b.start)) b.start <- as.vector(coef(m)[2L])
-    if (is.null(s.start)) s.start <- st$figure
+    l.start <- as.vector(coef(m)[1L])
+    b.start <- as.vector(coef(m)[2L])
+    s.start <- st$figure
 
     ## Call to filtering loop
     lenx <- as.integer(length(x))
@@ -69,8 +60,6 @@ function (x,
             as.integer(start.time),
             as.integer(! + (seasonal == "multiplicative")),
             as.integer(f),
-            TRUE,
-            TRUE,
             l.start,
             b.start,
             s.start,
