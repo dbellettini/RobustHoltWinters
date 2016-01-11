@@ -20,9 +20,6 @@ RobustHoltWinters <-
 function (x,
 
           # smoothing parameters
-          alpha    = NULL, # level
-          beta     = NULL, # trend
-          gamma    = NULL, # seasonal component
           seasonal = c("additive", "multiplicative"),
           start.periods = 2,
 
@@ -41,46 +38,22 @@ function (x,
     seasonal <- match.arg(seasonal)
     f <- frequency(x)
 
-    if(!is.null(alpha) && (alpha == 0))
-        stop ("cannot fit models without level ('alpha' must not be 0 or FALSE)")
-    if(!all(is.null(c(alpha, beta, gamma))) &&
-        any(c(alpha, beta, gamma) < 0 || c(alpha, beta, gamma) > 1))
-        stop ("'alpha', 'beta' and 'gamma' must be within the unit interval")
-    if((is.null(gamma) || gamma > 0)) {
-        if (seasonal == "multiplicative" && any(x == 0))
-            stop ("data must be non-zero for multiplicative Holt-Winters")
-        if (start.periods < 2)
-            stop ("need at least 2 periods to compute seasonal start values")
-    }
-
     ## initialization
-    if(!is.null(gamma) && is.logical(gamma) && !gamma) {
-        ## non-seasonal Holt-Winters
-        expsmooth <- !is.null(beta) && is.logical(beta) && !beta
-        if(is.null(l.start))
-            l.start <- if(expsmooth) x[1L] else x[2L]
-        if(is.null(b.start))
-            if(is.null(beta) || !is.logical(beta) || beta)
-                b.start <- x[2L] - x[1L]
-        start.time <- 3 - expsmooth
-        s.start    <- 0
-    } else {
-        ## seasonal Holt-Winters
-        start.time <- f + 1
-        wind       <- start.periods * f
+    ## seasonal Holt-Winters
+    start.time <- f + 1
+    wind       <- start.periods * f
 
-        ## decompose series
-        st <- decompose(ts(x[1L:wind], start = start(x), frequency = f),
-                        seasonal)
+    ## decompose series
+    st <- decompose(ts(x[1L:wind], start = start(x), frequency = f),
+                    seasonal)
 
-        ## level & intercept
-        dat <- na.omit(st$trend)
-        m   <- lm(dat ~ seq_along(dat))
+    ## level & intercept
+    dat <- na.omit(st$trend)
+    m   <- lm(dat ~ seq_along(dat))
 
-        if (is.null(l.start)) l.start <- as.vector(coef(m)[1L])
-        if (is.null(b.start)) b.start <- as.vector(coef(m)[2L])
-        if (is.null(s.start)) s.start <- st$figure
-    }
+    if (is.null(l.start)) l.start <- as.vector(coef(m)[1L])
+    if (is.null(b.start)) b.start <- as.vector(coef(m)[2L])
+    if (is.null(s.start)) s.start <- st$figure
 
     ## Call to filtering loop
     lenx <- as.integer(length(x))
@@ -96,8 +69,8 @@ function (x,
             as.integer(start.time),
             as.integer(! + (seasonal == "multiplicative")),
             as.integer(f),
-            !is.logical(beta) || beta,
-            !is.logical(gamma) || gamma,
+            TRUE,
+            TRUE,
             l.start,
             b.start,
             s.start,
@@ -106,106 +79,20 @@ function (x,
         ))
     }
 
-    ## if alpha and/or beta and/or gamma are omitted, use optim to find the
-    ## values minimizing the squared prediction error
-    if (is.null(gamma)) {
-        ## optimize gamma
-        if (is.null(alpha)) {
-            ## optimize alpha
-            if (is.null(beta)) {
-                ## optimize beta
-                ## --> optimize alpha, beta, and gamma
-                error <- function (p) hw(p[1L], p[2L], p[3L])$SSE
-                sol   <- optim(optim.start, error, method = "L-BFGS-B",
-                               lower = c(0, 0, 0), upper = c(1, 1, 1),
-                               control = optim.control)
-                if(sol$convergence || any(sol$par < 0 | sol$par > 1)) {
-                    if (sol$convergence > 50) {
-                        warning(gettextf("optimization difficulties: %s",
-                                         sol$message), domain = NA)
-                    } else stop("optimization failure")
-                }
-                alpha <- sol$par[1L]
-                beta  <- sol$par[2L]
-                gamma <- sol$par[3L]
-            } else {
-                ## !optimize beta
-                ## --> optimize alpha and gamma
-                error <- function (p) hw(p[1L], beta, p[2L])$SSE
-                sol   <- optim(c(optim.start["alpha"], optim.start["gamma"]),
-                               error, method = "L-BFGS-B",
-                               lower = c(0, 0), upper = c(1, 1),
-                               control = optim.control)
-                if(sol$convergence || any(sol$par < 0 | sol$par > 1)) {
-                    if (sol$convergence > 50) {
-                        warning(gettextf("optimization difficulties: %s",
-                                         sol$message), domain = NA)
-                    } else stop("optimization failure")
-                }
-                alpha <- sol$par[1L]
-                gamma <- sol$par[2L]
-            }
-        } else {
-            ## !optimize alpha
-            if (is.null(beta)) {
-                ## optimize beta
-                ## --> optimize beta and gamma
-                error <- function (p) hw(alpha, p[1L], p[2L])$SSE
-                sol   <- optim(c(optim.start["beta"], optim.start["gamma"]),
-                               error, method = "L-BFGS-B",
-                               lower = c(0, 0), upper = c(1, 1),
-                               control = optim.control)
-                if(sol$convergence || any(sol$par < 0 | sol$par > 1)) {
-                    if (sol$convergence > 50) {
-                        warning(gettextf("optimization difficulties: %s",
-                                         sol$message), domain = NA)
-                    } else stop("optimization failure")
-                }
-                beta  <- sol$par[1L]
-                gamma <- sol$par[2L]
-            } else {
-                ## !optimize beta
-                ## --> optimize gamma
-                error <- function (p) hw(alpha, beta, p)$SSE
-                gamma <- optimize(error, lower = 0, upper = 1)$minimum
-            }
-        }
-    } else {
-        ## !optimize gamma
-        if (is.null(alpha)) {
-            ## optimize alpha
-            if (is.null(beta)) {
-                ## optimize beta
-                ## --> optimize alpha and beta
-                error <- function (p) hw(p[1L], p[2L], gamma)$SSE
-                sol   <- optim(c(optim.start["alpha"], optim.start["beta"]),
-                               error, method = "L-BFGS-B",
-                               lower = c(0, 0), upper = c(1, 1),
-                               control = optim.control)
-                if(sol$convergence || any(sol$par < 0 | sol$par > 1)) {
-                    if (sol$convergence > 50) {
-                        warning(gettextf("optimization difficulties: %s",
-                                         sol$message), domain = NA)
-                    } else stop("optimization failure")
-                }
-                alpha <- sol$par[1L]
-                beta  <- sol$par[2L]
-            } else {
-                ## !optimize beta
-                ## --> optimize alpha
-                error <- function (p) hw(p, beta, gamma)$SSE
-                alpha <- optimize(error, lower = 0, upper = 1)$minimum
-            }
-        } else {
-            ## !optimize alpha
-            if(is.null(beta)) {
-                ## optimize beta
-                ## --> optimize beta
-                error <- function (p) hw(alpha, p, gamma)$SSE
-                beta <- optimize(error, lower = 0, upper = 1)$minimum
-            } ## else optimize nothing!
-        }
+    ## --> optimize alpha, beta, and gamma
+    error <- function (p) hw(p[1L], p[2L], p[3L])$SSE
+    sol   <- optim(optim.start, error, method = "L-BFGS-B",
+                   lower = c(0, 0, 0), upper = c(1, 1, 1),
+                   control = optim.control)
+    if(sol$convergence || any(sol$par < 0 | sol$par > 1)) {
+        if (sol$convergence > 50) {
+            warning(gettextf("optimization difficulties: %s",
+                             sol$message), domain = NA)
+        } else stop("optimization failure")
     }
+    alpha <- sol$par[1L]
+    beta  <- sol$par[2L]
+    gamma <- sol$par[3L]
 
     ## get (final) results
     final.fit <- hw(alpha, beta, gamma)
