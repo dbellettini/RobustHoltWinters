@@ -96,7 +96,6 @@ List RobustHoltWintersCpp(
     const double beta,
     const double gamma,
     int startTime,
-    int seasonalType,
     int frequency,
     double levelInitial,
     double trendInitial,

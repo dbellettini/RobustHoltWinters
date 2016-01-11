@@ -58,7 +58,6 @@ function (x, seasonal = c("additive", "multiplicative"))
             as.double(beta),
             as.double(gamma),
             as.integer(start.time),
-            as.integer(! + (seasonal == "multiplicative")),
             as.integer(f),
             l.start,
             b.start,
