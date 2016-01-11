@@ -22,35 +22,54 @@
 
 #include <Rcpp.h>
 #include <assert.h>
-#include <iostream>
 #include <cmath>
 
+// TODO: use these constant everywhere
+// requires rstudio to update bindings
+const double k = 2.0, ck = 2.52;
+
 using namespace Rcpp;
-using namespace std;
 
-// [[Rcpp::export]]
-double psi (double y, double k)
+double sgn(double x)
 {
-    if (y > k) {
-        return k;
+    if (x < 0) {
+        return -1.0;
     }
 
-    if (y < -k) {
-        return -k;
-    }
-
-    return y;
+    return 1.0;
 }
 
-bool shouldSaturate(double res, double sigma, double k)
+/**
+ * saturation function, returns x in the interval [-k, +k]
+ * sign(x) * k otherwhise
+ */
+// [[Rcpp::export]]
+double psi (double x, double k)
+{
+    if (std::abs(x) > k) {
+        return sgn(x) * k;
+    }
+
+    return x;
+}
+
+/*
+ * res is the residual (e.g. x - xhat) thus the difference
+ * between actual value and 1 step ahead prediction
+ */
+bool shouldSaturate(double res, double sigma)
 {
     return (res / sigma) > k || (res / sigma) < -k;
 }
 
+/*
+ * rho is a bounded loss function that is used to replace
+ * pow(x, 2) to get robust
+ *
+ * returns double [0, ck]
+ */
 double rho (double x)
 {
-    const double k = 2, ck = 2.52;
-
     if (x > k || x < -k) {
         return ck;
     }
@@ -58,6 +77,10 @@ double rho (double x)
     return ck * (1 - pow(1 - pow(x / k, 2), 3));
 }
 
+/**
+ * sigma estimates the scale of error and it's needed for the
+ * saturation, and takes sigma up to time t-1
+ */
 double updatesigma (double delta, double rt, double sigma)
 {
     return sqrt(
@@ -119,7 +142,7 @@ List RobustHoltWintersCpp(
         /* Sum of Squared Errors */
         res   = x[i] - xhat;
 
-        if (shouldSaturate(res, sigma, k)) {
+        if (shouldSaturate(res, sigma)) {
             /* fprintf(stderr, "res: %f, sigma: %f, k: %f\n", res, sigma, k); */
             res = sigma * psi(res / sigma, k);
             x[i] = xhat + res;
