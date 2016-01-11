@@ -57,9 +57,9 @@ double psi (double x, double k)
  * res is the residual (e.g. x - xhat) thus the difference
  * between actual value and 1 step ahead prediction
  */
-bool shouldSaturate(double res, double sigma)
+bool shouldSaturate(double residual, double sigma)
 {
-    return (res / sigma) > k || (res / sigma) < -k;
+    return (residual / sigma) > k || (residual / sigma) < -k;
 }
 
 /*
@@ -104,73 +104,63 @@ List RobustHoltWintersCpp(
     double sigma,
     double k
 ) {
-    int xl = x.length();
-    int len = xl - startTime + 1;
+    const int xLength = x.length();
+    const int smoothedLength = xLength - startTime + 1;
+    const int seasonLength = frequency;
+
+    // sigma smoothing parameter (see the function updatesigma)
     double delta = 0.2;
 
-    double res = 0, xhat = 0, stmp = 0;
-    int i, i0, s0;
-
-    double SSE = 0.0;
-
-    NumericVector level(len + 1);
-    NumericVector trend(len + 1);
-    NumericVector season(len + frequency);
+    NumericVector level(smoothedLength + 1);
+    NumericVector trend(smoothedLength + 1);
+    NumericVector season(smoothedLength + seasonLength);
 
     /* copy start values to the beginning of the vectors */
     level[0] = levelInitial;
     trend[0] = trendInitial;
 
-    for (i = 0; i < frequency; ++i) {
+    for (int i = 0; i < seasonLength; ++i) {
         season[i] = seasonInitial[i];
     }
 
-    for (i = startTime - 1; i < xl; i++) {
+    double SSE = 0.0;
+
+    for (int t = startTime - 1; t < xLength; t++) {
         /* indices for period i */
-        i0 = i - startTime + 2;
-        s0 = i0 + frequency - 1;
+        const int currentIndex = t - startTime + 2;
+        const int previousIndex = currentIndex - 1;
+        const int currentSeasonalIndex = currentIndex + seasonLength - 1;
+        const double xAtT = x[t];
 
         /* forecast *for* period i */
-        xhat = level[i0 - 1] + trend[i0 - 1];
-        stmp = season[s0 - frequency];
-
-        if (seasonalType == 1)
-            xhat += stmp;
-        else
-            xhat *= stmp;
+        // xhat is the 1 step ahead prediction
+        const double seasonalPrevious = season[currentSeasonalIndex - seasonLength];
+        const double xhat = level[previousIndex] + trend[previousIndex] + seasonalPrevious;
 
         /* Sum of Squared Errors */
-        res   = x[i] - xhat;
+        double residual = xAtT - xhat;
+        double xFiteredAtT = xAtT;
 
-        if (shouldSaturate(res, sigma)) {
-            /* fprintf(stderr, "res: %f, sigma: %f, k: %f\n", res, sigma, k); */
-            res = sigma * psi(res / sigma, k);
-            x[i] = xhat + res;
+        if (shouldSaturate(residual, sigma)) {
+            residual = sigma * psi(residual / sigma, k);
+            xFiteredAtT = xhat + residual;
         }
 
-        SSE += res * res;
+        SSE += pow(residual, 2);
 
-        /* estimate of level *in* period i */
-        if (seasonalType == 1)
-            level[i0] = alpha       * (x[i] - stmp)
-                + (1 - alpha) * (level[i0 - 1] + trend[i0 - 1]);
-        else
-            level[i0] = alpha       * (x[i] / stmp)
-                + (1 - alpha) * (level[i0 - 1] + trend[i0 - 1]);
+        /* estimate of level *in* period t */
+        level[currentIndex] = alpha * (xFiteredAtT - seasonalPrevious)
+            + (1 - alpha) * (level[previousIndex] + trend[previousIndex]);
 
-        /* estimate of trend *in* period i */
-        trend[i0] = beta        * (level[i0] - level[i0 - 1])
-            + (1 - beta)  * trend[i0 - 1];
+        /* estimate of trend *in* period t */
+        trend[currentIndex] = beta * (level[currentIndex] - level[previousIndex])
+            + (1 - beta)  * trend[previousIndex];
 
-        /* estimate of seasonal component *in* period i */
-        if (seasonalType == 1)
-            season[s0] = gamma * (x[i] - level[i0])
-                + (1 - gamma) * stmp;
-        else
-            season[s0] = gamma * (x[i] / level[i0])
-                + (1 - gamma) * stmp;
+        /* estimate of seasonal component *in* period t */
+        season[currentSeasonalIndex] = gamma * (xFiteredAtT - level[currentIndex])
+            + (1 - gamma) * seasonalPrevious;
 
-        sigma = updatesigma(delta, res, sigma);
+        sigma = updatesigma(delta, residual, sigma);
     }
 
     List output;
