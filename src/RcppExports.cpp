@@ -6,35 +6,41 @@
 using namespace Rcpp;
 
 // psi
-double psi(double x, double k);
-RcppExport SEXP RobustHoltWinters_psi(SEXP xSEXP, SEXP kSEXP) {
+double psi(double x);
+RcppExport SEXP RobustHoltWinters_psi(SEXP xSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type k(kSEXP);
-    __result = Rcpp::wrap(psi(x, k));
-    return __result;
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< double >::type x(xSEXP );
+        double __result = psi(x);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
 END_RCPP
 }
 // RobustHoltWintersCpp
-List RobustHoltWintersCpp(NumericVector x, const double alpha, const double beta, const double gamma, int startTime, int frequency, double levelInitial, double trendInitial, NumericVector seasonInitial, double sigma, double k);
-RcppExport SEXP RobustHoltWinters_RobustHoltWintersCpp(SEXP xSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP startTimeSEXP, SEXP frequencySEXP, SEXP levelInitialSEXP, SEXP trendInitialSEXP, SEXP seasonInitialSEXP, SEXP sigmaSEXP, SEXP kSEXP) {
+List RobustHoltWintersCpp(NumericVector x, const double alpha, const double beta, const double gamma, int startTime, int frequency, double levelInitial, double trendInitial, NumericVector seasonInitial, double sigma);
+RcppExport SEXP RobustHoltWinters_RobustHoltWintersCpp(SEXP xSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP startTimeSEXP, SEXP frequencySEXP, SEXP levelInitialSEXP, SEXP trendInitialSEXP, SEXP seasonInitialSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< const double >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const double >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< int >::type startTime(startTimeSEXP);
-    Rcpp::traits::input_parameter< int >::type frequency(frequencySEXP);
-    Rcpp::traits::input_parameter< double >::type levelInitial(levelInitialSEXP);
-    Rcpp::traits::input_parameter< double >::type trendInitial(trendInitialSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type seasonInitial(seasonInitialSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< double >::type k(kSEXP);
-    __result = Rcpp::wrap(RobustHoltWintersCpp(x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma, k));
-    return __result;
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
+        Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP );
+        Rcpp::traits::input_parameter< const double >::type beta(betaSEXP );
+        Rcpp::traits::input_parameter< const double >::type gamma(gammaSEXP );
+        Rcpp::traits::input_parameter< int >::type startTime(startTimeSEXP );
+        Rcpp::traits::input_parameter< int >::type frequency(frequencySEXP );
+        Rcpp::traits::input_parameter< double >::type levelInitial(levelInitialSEXP );
+        Rcpp::traits::input_parameter< double >::type trendInitial(trendInitialSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type seasonInitial(seasonInitialSEXP );
+        Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP );
+        List __result = RobustHoltWintersCpp(x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
 END_RCPP
 }

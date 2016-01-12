@@ -23,7 +23,6 @@ function (x, seasonal = c("additive", "multiplicative"))
     optim.start = c(alpha = 0.3, beta = 0.1, gamma = 0.1)
     optim.control = list()
     start.periods = 2
-    k = 2
 
     x <- as.ts(x)
     seasonal <- match.arg(seasonal)
@@ -62,8 +61,7 @@ function (x, seasonal = c("additive", "multiplicative"))
             l.start,
             b.start,
             s.start,
-            mad(x[1:start.time - 1]),
-            k
+            mad(x[1:start.time - 1])
         ))
     }
 

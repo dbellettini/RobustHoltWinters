@@ -44,7 +44,7 @@ double sgn(double x)
  * sign(x) * k otherwhise
  */
 // [[Rcpp::export]]
-double psi (double x, double k)
+double psi (double x)
 {
     if (std::abs(x) > k) {
         return sgn(x) * k;
@@ -100,8 +100,7 @@ List RobustHoltWintersCpp(
     double levelInitial,
     double trendInitial,
     NumericVector seasonInitial,
-    double sigma,
-    double k
+    double sigma
 ) {
     const int xLength = x.length();
     const int smoothedLength = xLength - startTime + 1;
@@ -141,7 +140,7 @@ List RobustHoltWintersCpp(
         double xFiteredAtT = xAtT;
 
         if (shouldSaturate(residual, sigma)) {
-            residual = sigma * psi(residual / sigma, k);
+            residual = sigma * psi(residual / sigma);
             xFiteredAtT = xhat + residual;
         }
 
