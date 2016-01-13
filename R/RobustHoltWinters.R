@@ -61,7 +61,8 @@ function (x, seasonal = c("additive", "multiplicative"))
             l.start,
             b.start,
             s.start,
-            mad(x[1:start.time - 1])
+            mad(x[1:start.time - 1]),
+            median
         ))
     }
 

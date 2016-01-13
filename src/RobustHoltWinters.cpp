@@ -100,7 +100,8 @@ List RobustHoltWintersCpp(
     double levelInitial,
     double trendInitial,
     NumericVector seasonInitial,
-    double sigma
+    double sigma,
+    Function median
 ) {
     const int xLength = x.length();
     const int smoothedLength = xLength - startTime + 1;
