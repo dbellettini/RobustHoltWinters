@@ -50,6 +50,9 @@ function (x, seasonal = c("additive", "multiplicative"))
     if (is.na(lenx)) stop("invalid length(x)")
 
     len <- lenx - start.time + 1
+    st <- function (residuals) {
+        return (as.double(1.48 * median(abs(residuals))))
+    }
     hw <- function (alpha, beta, gamma) {
         return (RobustHoltWintersCpp(
             x,
@@ -62,7 +65,7 @@ function (x, seasonal = c("additive", "multiplicative"))
             b.start,
             s.start,
             mad(x[1:start.time - 1]),
-            median
+            st
         ))
     }
 

@@ -5,7 +5,7 @@ psi <- function(x) {
     .Call('RobustHoltWinters_psi', PACKAGE = 'RobustHoltWinters', x)
 }
 
-RobustHoltWintersCpp <- function(x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma, median) {
-    .Call('RobustHoltWinters_RobustHoltWintersCpp', PACKAGE = 'RobustHoltWinters', x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma, median)
+RobustHoltWintersCpp <- function(x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma, st) {
+    .Call('RobustHoltWinters_RobustHoltWintersCpp', PACKAGE = 'RobustHoltWinters', x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma, st)
 }
 

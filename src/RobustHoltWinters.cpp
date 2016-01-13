@@ -89,6 +89,18 @@ double updatesigma (double delta, double rt, double sigma)
     );
 }
 
+double tau2(NumericVector residuals, double st)
+{
+    double sum = 0.0;
+    int length = residuals.length();
+
+    for (int i = 0; i < length; ++i) {
+        sum += rho(residuals[i] / st);
+    }
+
+    return st * st * sum / length;
+}
+
 // [[Rcpp::export]]
 List RobustHoltWintersCpp(
     NumericVector x,
@@ -101,7 +113,7 @@ List RobustHoltWintersCpp(
     double trendInitial,
     NumericVector seasonInitial,
     double sigma,
-    Function median
+    Function st
 ) {
     const int xLength = x.length();
     const int smoothedLength = xLength - startTime + 1;
@@ -113,6 +125,7 @@ List RobustHoltWintersCpp(
     NumericVector level(smoothedLength + 1);
     NumericVector trend(smoothedLength + 1);
     NumericVector season(smoothedLength + seasonLength);
+    NumericVector residuals(smoothedLength);
 
     /* copy start values to the beginning of the vectors */
     level[0] = levelInitial;
@@ -127,6 +140,7 @@ List RobustHoltWintersCpp(
     for (int t = startTime - 1; t < xLength; t++) {
         /* indices for period i */
         const int currentIndex = t - startTime + 2;
+        const int currentResidualIndex = currentIndex - 1;
         const int previousIndex = currentIndex - 1;
         const int currentSeasonalIndex = currentIndex + seasonLength - 1;
         const double xAtT = x[t];
@@ -137,7 +151,7 @@ List RobustHoltWintersCpp(
         const double xhat = level[previousIndex] + trend[previousIndex] + seasonalPrevious;
 
         /* Sum of Squared Errors */
-        double residual = xAtT - xhat;
+        double residual = residuals[currentResidualIndex] = xAtT - xhat;
         double xFiteredAtT = xAtT;
 
         if (shouldSaturate(residual, sigma)) {
@@ -162,9 +176,12 @@ List RobustHoltWintersCpp(
         sigma = updatesigma(delta, residual, sigma);
     }
 
+    NumericVector stVector = st(residuals);
+
     List output;
 
     output["SSE"] = SSE;
+    output["tau2"] = tau2(residuals, stVector[0]);
     output["level"] = level;
     output["trend"] = trend;
     output["seasonal"] = season;
