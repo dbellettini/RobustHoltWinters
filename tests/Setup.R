@@ -12,6 +12,14 @@ insertOutlier <- function(x, moltiplicativeNoise, daysback = 7) {
     return (x)
 }
 
+msfe <- function (error) {
+    return (sum(error ** 2) / length(error))
+}
+
 performanceEvaluation <- function(model, validation) {
     # TODO: implement performanceEvaluation
+    predictedFutureAmounts <- predict(model, length(validation))
+    predicted <- as.numeric(predictedFutureAmounts[,'fit'])
+
+    return (msfe(validation, predicted))
 }
