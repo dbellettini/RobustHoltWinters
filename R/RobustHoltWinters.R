@@ -70,7 +70,7 @@ function (x, seasonal = c("additive", "multiplicative"))
     }
 
     ## --> optimize alpha, beta, and gamma
-    error <- function (p) hw(p[1L], p[2L], p[3L])$SSE
+    error <- function (p) hw(p[1L], p[2L], p[3L])$tau2
     sol   <- optim(optim.start, error, method = "L-BFGS-B",
                    lower = c(0, 0, 0), upper = c(1, 1, 1),
                    control = optim.control)
@@ -113,6 +113,7 @@ function (x, seasonal = c("additive", "multiplicative"))
                                     s = if (!is.logical(gamma) || gamma) final.fit$seasonal[len + 1L:f]),
                    seasonal  = seasonal,
                    SSE       = final.fit$SSE,
+                   tau2      = final.fit$tau2,
                    call      = match.call()
                    ),
               class = "HoltWinters"
