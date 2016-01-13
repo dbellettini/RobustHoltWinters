@@ -1,20 +1,6 @@
 library(RobustHoltWinters)
 
 test.periodic <- function () {
-    checkAbsLessThanOrEqual <- function(expected, actual, tolerance = 0.001) {
-        checkTrue(abs(actual) <= expected + tolerance, paste(actual, 'should be, in absolute value less than', expected))
-    }
-
-    insertOutlier <- function(x, noise, daysback = 7) {
-        i <- length(x) - daysback;
-        x[i] <- x[i] * noise
-        return (x)
-    }
-
-    performanceEvaluation <- function(model, validation) {
-        # TODO: implement performanceEvaluation
-    }
-
     synthLength <- 28
 
     data <- arima.sim(list(1,1,1), n = 100)
