@@ -1,4 +1,5 @@
-install.packages('.', repos=NULL, type="source")
+source('tests/Setup.R')
+
 library(RUnit)
 
 testSuite <- defineTestSuite("Holt-Winters-Gelper",
