@@ -9,3 +9,7 @@ RobustHoltWintersCpp <- function(x, alpha, beta, gamma, startTime, frequency, le
     .Call('RobustHoltWinters_RobustHoltWintersCpp', PACKAGE = 'RobustHoltWinters', x, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial, sigma, st)
 }
 
+SupervisedHoltWintersCpp <- function(x, outlier, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial) {
+    .Call('RobustHoltWinters_SupervisedHoltWintersCpp', PACKAGE = 'RobustHoltWinters', x, outlier, alpha, beta, gamma, startTime, frequency, levelInitial, trendInitial, seasonInitial)
+}
+
