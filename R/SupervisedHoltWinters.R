@@ -87,30 +87,29 @@ function (x, seasonal = c("additive", "multiplicative"), outlier = F)
     ## get (final) results
     final.fit <- hw(alpha, beta, gamma)
 
-    ## return fitted values and estimated coefficients along with parameters used
+    # return fitted values and estimated coefficients
+    # along with parameters used
     fitted <- ts(cbind(xhat   = final.fit$level[-len-1],
                        level  = final.fit$level[-len-1],
-                       trend  = if (!is.logical(beta) || beta)
-                           final.fit$trend[-len-1],
-                       season = if (!is.logical(gamma) || gamma)
-                           final.fit$seasonal[1L:len]),
+                       trend  = final.fit$trend[-len-1],
+                       season = final.fit$seasonal[1L:len]),
                  start = start(lag(x, k = 1 - start.time)),
                  frequency  = frequency(x)
                  )
-    if (!is.logical(beta) || beta) fitted[,1] <- fitted[,1] + fitted[,"trend"]
-    if (!is.logical(gamma) || gamma)
-      fitted[,1] <- if (seasonal == "multiplicative")
-        fitted[,1] * fitted[,"season"]
-      else
-        fitted[,1] + fitted[,"season"]
+    fitted[,1] <- fitted[,1] + fitted[,"trend"]
+    fitted[,1] <- if (seasonal == "multiplicative")
+      fitted[,1] * fitted[,"season"]
+    else
+      fitted[,1] + fitted[,"season"]
+
     structure(list(fitted    = fitted,
                    x         = x,
                    alpha     = alpha,
                    beta      = beta,
                    gamma     = gamma,
                    coefficients = c(a = final.fit$level[len + 1],
-                                    b = if (!is.logical(beta) || beta) final.fit$trend[len + 1],
-                                    s = if (!is.logical(gamma) || gamma) final.fit$seasonal[len + 1L:f]),
+                                    b = final.fit$trend[len + 1],
+                                    s = final.fit$seasonal[len + 1L:f]),
                    seasonal  = seasonal,
                    SSE       = final.fit$SSE,
                    tau2      = final.fit$tau2,

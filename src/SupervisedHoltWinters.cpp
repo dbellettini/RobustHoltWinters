@@ -46,8 +46,10 @@ List SupervisedHoltWintersCpp(
 
         /* forecast *for* period i */
         // xhat is the 1 step ahead prediction
-        const double seasonalPrevious = season[currentSeasonalIndex - seasonLength];
-        const double xhat = level[previousIndex] + trend[previousIndex] + seasonalPrevious;
+        const double seasonalPrevious =
+            season[currentSeasonalIndex - seasonLength];
+        const double xhat =
+            level[previousIndex] + trend[previousIndex] + seasonalPrevious;
 
         /* Sum of Squared Errors */
         double residual = residuals[currentResidualIndex] = xAtT - xhat;
@@ -65,11 +67,13 @@ List SupervisedHoltWintersCpp(
             + (1 - alpha) * (level[previousIndex] + trend[previousIndex]);
 
         /* estimate of trend *in* period t */
-        trend[currentIndex] = beta * (level[currentIndex] - level[previousIndex])
+        trend[currentIndex] =
+            beta * (level[currentIndex] - level[previousIndex])
             + (1 - beta)  * trend[previousIndex];
 
         /* estimate of seasonal component *in* period t */
-        season[currentSeasonalIndex] = gamma * (xFiteredAtT - level[currentIndex])
+        season[currentSeasonalIndex] =
+            gamma * (xFiteredAtT - level[currentIndex])
             + (1 - gamma) * seasonalPrevious;
     }
 
